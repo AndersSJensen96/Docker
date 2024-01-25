@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  nginx:
+    image: nginx
+    restart: "unless-stopped"
+    container_name: nginx1
+    volumes:
+      - ./nginx1/html/:/usr/share/nginx/html
+    ports:
+      - "8080:80"
+    networks: 
+      - homelab
+      
+  nginx2:
+    image: nginx
+    restart: "unless-stopped"
+    container_name: nginx2
+    volumes:
+      - ./nginx2/html/:/usr/share/nginx/html
+    ports:
+      - "8081:80"
+    networks: 
+      - homelab
+
+networks:
+  homelab:
+    name: homelab-network-bridge
+    external: true 
