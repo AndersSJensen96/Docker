@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+
+  #BIND9 DNS SERVICE SETUP
+  bind9:
+    container_name: local-dns
+    image: ubuntu/bind9:latest
+    environment:
+      - BIND9_USER=root
+      - TZ=Europe/Copenhagen
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    volumes:
+      - ./config/:/etc/bind
+      - ./cache:/var/cache/bind
+      - ./records:/var/lib/bind
+
+    restart: unless-stopped
+    depends_on:
+      - nginx_proxy
+    networks:
+      homelab:
+        ipv4_address: 10.50.0.2
+
+  #NGINX PROCY FOR REVERSE LOOKUP OF SERVICES
+  nginx_proxy:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: nginx_proxy_manager
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    networks:
+      homelab:
+        ipv4_address: 10.50.0.3
+
+networks:
+  homelab:
+    name: homelab-network-bridge
+    external: true

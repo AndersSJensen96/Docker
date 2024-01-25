@@ -1,0 +1,25 @@
+$TTL 2d
+
+$ORIGIN homelab.
+
+@                           IN      SOA         ns.homelab. admin.homelab (
+                                                2023031200  ; serial
+                                                12h         ; refresh
+                                                15m         ; retry
+                                                3w          ; expire
+                                                2h          ; minimum tll
+                                                )
+
+;
+
+                            IN      NS      ns.homelab.
+
+ns                          IN      A       10.50.0.2
+
+; -- dns records here
+
+dev                       IN      A       10.50.0.3
+*.dev                     IN      A       10.50.0.3
+prod                      IN      A       10.50.0.3
+*.prod                    IN      A       10.50.0.3
+
