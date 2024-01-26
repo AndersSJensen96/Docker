@@ -15,7 +15,7 @@ Because of intern related stuff with microservices, it has been decided that we 
 - pod
     - Abstraction that hold 1-* containers that share storage/volume, network and other information about eachother.
 - deployment
-    - creating a deployment through `kubectl create deployment` or `kubectl apply` sets up pods on available nodes. To remove you can use `kubectl delete deployment`. A deployment can be created with previous mentioned `kubectl apply` by also having a deployment.yml file that contains information regarding Kind, selector, labels and for containers image, name, port.
+    - creating a deployment through `kubectl create deployment` or `kubectl apply -f <deployment.yaml>` sets up pods on available nodes. To remove you can use `kubectl delete deployment`. A deployment can be created with previous mentioned `kubectl apply -f` by also having a deployment.yml file that contains information regarding Kind, selector, labels and for containers image, name, port.
     - kinda like a compose in docker
 - service
     - Normally when creating a pods, it has an internal ip making it possible for communication inside the cluster. Outside though is not possible until you make a service. A service is an abstraction that uses a selector and labels to know which pods that needs to be exposed to the outside (for external IP you can use metallb addon in microk8s).
@@ -57,3 +57,22 @@ Because of intern related stuff with microservices, it has been decided that we 
         - confirm with `kubectl rollout status <deployment>`, `kubectl describe pods` (check image) or run a curl on the node if exposed
     - for rollback use `kubectl rollout undo <deployment>`
         - rollback to previous known state
+
+# Deployment yaml
+- kind deployment:
+    - metadata contains general data on the deployment for later identification
+
+- spec
+    - contains information about the pod
+        - replicas: number of replicas to make on initialization
+        - selector-matchLabels: label matching, so the replicaset knows which pods to manage
+            - matchlabel is key-value pair.
+            - should match temaplte labels
+
+- template
+    - Defines the template that the pods should be created by.
+    - Labels is for identifying pods that are the same deployments
+    - specs
+        - Contains information regarding the containers that should be started on deployment.
+
+
