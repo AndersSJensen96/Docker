@@ -16,15 +16,44 @@ Because of intern related stuff with microservices, it has been decided that we 
     - Abstraction that hold 1-* containers that share storage/volume, network and other information about eachother.
 - deployment
     - creating a deployment through `kubectl create deployment` or `kubectl apply` sets up pods on available nodes. To remove you can use `kubectl delete deployment`. A deployment can be created with previous mentioned `kubectl apply` by also having a deployment.yml file that contains information regarding Kind, selector, labels and for containers image, name, port.
+    - kinda like a compose in docker
 - service
     - Normally when creating a pods, it has an internal ip making it possible for communication inside the cluster. Outside though is not possible until you make a service. A service is an abstraction that uses a selector and labels to know which pods that needs to be exposed to the outside (for external IP you can use metallb addon in microk8s).
+    - Because services are an abstraction, it means that you can call this without having to worry about the status of the pods behind it, since it just chooses whatever is available that matches the label.
+    - Services contain a load-balancer for managing traffic to pods.
     - types
         - ClusterIP (default)
             - exposes on an internal ip
         - NodePort
-            - exposes the service on the same port on each node and can be accessed by `<nodeip>:<port>`. Uses NAT to resolve.
+            - exposes the service on the same port on each node and can be accessed externally by `<nodeip>:<port>`. Uses NAT to resolve.
         - LoadBalancer
             - creates an external loadbalancer and exposes a fixed external IP if available on the cloud solution (available on digitalocean). 
             - **Setup api-gateway with this and expose only it to the outside while making it communicate with services internally.**
         - ExternalName
             - maps the service to the content of an external name like `foo.bar.example.com`. No proxy needed.
+- Troubleshooting and kubectl commands
+    - Note: Most of these are used for pods, nodes or services
+    - `kubectl get`
+        - list resources
+    - `kubectl describe`
+        - show detailed info
+    - `kubectl logs`
+        - show logs - pods
+    - `kubectl exec`
+        - access to terminal for executing commands - pods
+    - other
+        - `kubectl delete`
+            - delete pod or service 
+- Scaling
+    - Scaling is done with replicas, which can be defined when running a deployment. increase number of the specific pods on available nodes.
+    - Kubernetes does have an option for autoscaling too: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/ 
+    - You can change replicas on the fly with `kubectl scale <deployment> --replica=<number-of-replicas>`
+        - use `kubectl get pods -o wide` to see the pod information
+- Updating
+    - Rolling updates is a way to update you pods by replacing old with new pods. This is done incrementally and with zero downtime.
+    - by default the max number of pods that can be created and unavailable is one. This can be changed to wither numbers or percentages.
+    - deployments are versioned and can be rolled back to last stable version if needed.
+    - to update the image use `kubectl set image <deployment> <new-image>`
+        - confirm with `kubectl rollout status <deployment>`, `kubectl describe pods` (check image) or run a curl on the node if exposed
+    - for rollback use `kubectl rollout undo <deployment>`
+        - rollback to previous known state
