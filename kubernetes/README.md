@@ -75,4 +75,17 @@ Because of intern related stuff with microservices, it has been decided that we 
     - specs
         - Contains information regarding the containers that should be started on deployment.
 
-
+# Service yaml
+- Similar to deployment, but kind Service instead and only metadata name is needed.
+- spec contains
+    - type which can be whatever you need, but is default CluserIp
+    - Selector, which is the pods that is connected to the service
+    - Ports, which contains
+        - port for the services port
+        - targetport for the pods port
+        - protocol, if you need to define the protocol.
+- Quick note:
+    - use describe to check the service after creation and look at endpoints to see if there's any pods endpoint addresses defined. If it is `<none>`, something is wrong
+    - also
+        - `kubectl get ep`
+        - `kubectl describe ep`
