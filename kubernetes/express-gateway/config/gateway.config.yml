@@ -1,0 +1,70 @@
+http:
+  port: 8080
+admin:
+  port: 9876
+apiEndpoints:
+  api:
+    host: 192.168.2.100
+    paths: '/ip'
+  nginx1:
+    host: 192.168.2.100
+    paths: ['/nginx1', '/nginx1/*']
+  nginx2:
+    host: 192.168.2.100
+    paths: ['/nginx2', '/nginx2/*']
+serviceEndpoints:
+  httpbin:
+    url: 'https://httpbin.org'
+  nginx1:
+    url: 'http://nginx-service:80'
+  nginx2:
+    url: 'http://nginx-service2:80'
+policies:
+  - basic-auth
+  - rewrite
+  - cors
+  - expression
+  - key-auth
+  - log
+  - oauth2
+  - proxy
+  - rate-limit
+pipelines:
+  default:
+    apiEndpoints:
+      - api
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: httpbin 
+              changeOrigin: true
+  nginx1-pipeline:
+    apiEndpoints:
+      - nginx1
+    policies:
+      - rewrite:
+          -
+            condition:
+              name: regexpmatch
+              match: ^/nginx1/?(.*)$
+            action:
+              rewrite: /$1   
+      - proxy:
+          - action:
+              serviceEndpoint: nginx1 
+              changeOrigin: true
+  nginx2-pipeline:
+    apiEndpoints:
+      - nginx2
+    policies:
+      - rewrite:
+           -
+             condition:
+                name: regexpmatch
+                match: ^/nginx2/?(.*)$
+             action:
+               rewrite: /$1   
+      - proxy:
+          - action:
+              serviceEndpoint: nginx2 
+              changeOrigin: true
